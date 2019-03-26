@@ -10,23 +10,59 @@ let savedData = [];
 osmosis
     .get(suite)
     // .find('#bodycontent')
-    .find('#bodycontent ul a[href]')
-   // .set({'related': ['ul li > a[href]']})
-    .set('Country')
+    // .paginate('#bodycontent > .linkList > li > a[href]',2)
+    .find('#bodycontent > ul.linkList > li > a')
+    .set('country')
     .follow('@href')
-    // .set({'related': ['.linkList li a']})
-    .find('header + div + div li > a')
-    .data(function (data) {
-        console.log(data);
-        savedData.push(data);
-    })
-    .done(function() {
-        fs.writeFile('data.json', JSON.stringify( savedData, null, 4), function(err) {
-            if(err) console.error(err);
-            else console.log('Data Saved to data.json file');
-        })
-    });
+    .find('#bodycontent > ul.linkList > li > a')
+    .set('kennels')
+    .follow('@href')
+    .find('#breedingListing')
+    .set({'Litter born':'//*[@id="breedingListing"]/li/dl/dd[1]'})
+    // .set({'country2': ['#bodycontent > ul > li > a[href]']})
+    // .find('#bodycontent > ul > li > a[href]')
 
+   //  .follow('@href')
+   //  .set('Country')
+    //
+
+    // .set({'related': ['.linkList li a']})
+    // .find('header + div + div li > a')
+
+    .data(console.log)
+    .log(console.log) // включить логи
+    .error(console.error);
+
+    // .data(function (data) {
+    //     console.log(data);
+    //     savedData.push(data);
+    // })
+    // .done(function() {
+    //     fs.writeFile('data.json', JSON.stringify( savedData, null, 4), function(err) {
+    //         if(err) console.error(err);
+    //         else console.log('Data Saved to data.json file');
+    //     })
+    // });
+
+
+// osmosis
+//     .get('www.craigslist.org/about/sites')
+//     .find('h1 + div a')
+//     .set('location')
+//     .follow('@href')
+//     .find('header + div + div li > a')
+//     .set('category')
+//     .follow('@href')
+//     .data(function (data) {
+//         console.log(data);
+//         savedData.push(data);
+//     })
+//     .done(function() {
+//         fs.writeFile('data2.json', JSON.stringify( savedData, null, 4), function(err) {
+//             if(err) console.error(err);
+//             else console.log('Data Saved to data2.json file');
+//         })
+//     });
 // osmosis
 //     .get(suite)
 //     .find('#bodycontent')
