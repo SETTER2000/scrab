@@ -11,6 +11,31 @@ osmosis.config('tries', 1);
 osmosis.config('concurrency', 2);
 
 
+function getOwners(res) {
+    return new Promise((resolve, reject) => {
+        let list = [];
+        res.kenns = [];
+        osmosis
+        // Поиск на странице стран
+            .get(domain + res)
+            .find('#kennelmenu >li>a')
+            .follow('@href')
+            .find('#bodycontent > #ownerListing')
+            .set({
+                'nameDog': 'li>ul>li[1]>a>strong',
+                'nic': 'li>ul>li[2]>strong',
+                'urlDog': 'li/a@href',
+                'img': 'li/a/img@src',
+                'type': 'li>ul>li[3]',
+                'statistics': 'li>ul>li[4]>a',
+                'pedigree': 'li>ul>li[4]>a@href',
+            })
+            .data(data => list.push(data))
+            .error(err => reject(err))
+            .done(() => resolve(list));
+    });
+}
+
 function getLitters(res) {
     return new Promise((resolve, reject) => {
         let list = [];
@@ -21,17 +46,17 @@ function getLitters(res) {
             .find('#breedingListing > li')
             .set({
                 'litterBorn': 'dl>dd[1]',
-                'sire':'dl>dd[2]>a/text()',
-                'dam':'dl>dd[3]>a/text()',
+                'sire': 'dl>dd[2]>a/text()',
+                'dam': 'dl>dd[3]>a/text()',
                 'sireUrl': 'dl>dd[2]>a@href',
                 'damUrl': 'dl>dd[3]>a@href',
-
             })
             .data(data => list.push(data))
             .error(err => reject(err))
             .done(() => resolve(list));
     });
 }
+
 function getKennels(res) {
     return new Promise((resolve, reject) => {
         let releasesMap = [];
@@ -44,18 +69,21 @@ function getKennels(res) {
                 'name': 'a/text()',
                 'total': 'a>span',
                 'url': 'a@href',
-                'litters':'p'
+                'litters': 'p',
+                'owners': 'p',
             })
             .then(async (context, data) => {
-                getLitters(data.url).then((res, err) => {
-                    if (err) console.log('Случилась ошибка! ', err);
+                getLitters(data.url).then(function (res) {
                     data.litters = res;
-                    releasesMap.push(data);
-                    // fs.writeFile('data.json', JSON.stringify(releasesMap, null, 4), function (err) {
-                    //     if (err) console.error(err);
-                    //     else console.log(`Data Saved to data.json file. Country: ${data.country}`);
-                    // })
+                }, function (reason) {
+                    console.log(reason); // Ошибка!
                 });
+                getOwners(data.url).then(function (res) {
+                    data.owners = res;
+                }, function (reason) {
+                    console.log(reason); // Ошибка!
+                });
+                releasesMap.push(data);
             })
             .error(err => reject(err))
             .done(() => resolve(releasesMap));
@@ -92,7 +120,9 @@ function getCountry() {
     });
 }
 
-getCountry().then(res => {console.log(res);});
+getCountry().then(res => {
+    console.log(res);
+});
 
 return;
 
