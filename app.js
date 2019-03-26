@@ -5,9 +5,9 @@ const country = domain + '/en/registry/breeders/';
 // Сделайте пользовательский агент браузером (Google Chrome в Windows)
 osmosis.config('user_agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36');
 // Если запрос не выполнен, не продолжайте повторную попытку (по умолчанию это 3)
-osmosis.config('tries', 2);
+osmosis.config('tries',2);
 // Параллельные запросы (по умолчанию это 5) делают это 2, поэтому мы не забиваем сайт
-osmosis.config('concurrency', 3);
+osmosis.config('concurrency', 2);
 
 
 function getOwners(res) {
@@ -15,7 +15,7 @@ function getOwners(res) {
         let list = [];
         osmosis
         // Поиск на странице стран
-            .get('http://www.chinesecrested.no/en/registry/breeders/Argentina/Patagonia+Ranch.html')
+            .get(res)
             .find('#kennelmenu >li>a')
             .follow('@href')
             .find('#ownerListing > li')
@@ -39,7 +39,7 @@ function getLitters(res) {
         let list = [];
         osmosis
         // Поиск на странице стран
-            .get(domain + res)
+            .get(res)
             .find('#breedingListing > li')
             .set({
                 'litterBorn': 'dl>dd[1]',
@@ -59,7 +59,7 @@ function getKennels(res) {
         let releasesMap = [];
         osmosis
         // Поиск на странице стран
-            .get(domain + res)
+            .get(res)
             .find('#bodycontent > ul.linkList > li')
             .set({
                 'name': 'a/text()',
@@ -70,12 +70,12 @@ function getKennels(res) {
             })
             // .delay(5000)
             .then(async (context, data) => {
-                getLitters(data.url).then(function (res) {
+                getLitters(domain+data.url).then(function (res) {
                     data.litters = res;
                 }, function (reason) {
                     console.log(reason); // Ошибка!
                 });
-                getOwners(data.url).then(function (res) {
+                getOwners(domain+data.url).then(function (res) {
                     data.owners = res;
                 }, function (reason) {
                     console.log(reason); // Ошибка!
@@ -102,13 +102,10 @@ function getCountry() {
             })
             .delay(5000)
             .then(async (context, data) => {
-                getKennels(data.url).then(function (res) {
+                getKennels(domain + data.url).then(function (res) {
                     data.kennels = res;
                     releasesMap.push(data);
-                    fs.writeFile('data.json', JSON.stringify(releasesMap, null, 4), function (err) {
-                        if (err) console.error('Возникла ошибка при записи в файл: ',err);
-                        else console.log(`Data Saved to data.json file. Country: ${data.country}`);
-                    })
+
                 }, function (reason) {
                     console.log('В функции getKennels произошла ошибка: ', reason); // Ошибка!
                 });
@@ -123,9 +120,14 @@ function getCountry() {
 // });
 
 getCountry().then(function (res) {
-    console.log(res);
+    fs.writeFile('data.json', JSON.stringify(res, null, 4), function (err) {
+        if (err) console.error('Возникла ошибка при записи в файл: ',err);
+        else console.log(`Data Saved to data.json file. Country:`);
+    });
+    console.log('Вывод в функции getCountry:', res);
+
 }, function (err) {
-    console.log(err);
+    console.log('Ошибка! В функции getCountry:',err);
 });
 // return;
 //
