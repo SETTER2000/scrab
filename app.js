@@ -2,7 +2,6 @@ const osmosis = require('osmosis');
 const fs = require('fs');
 const domain = 'www.chinesecrested.no';
 const country = domain + '/en/registry/breeders/';
-let savedData = [];
 // Сделайте пользовательский агент браузером (Google Chrome в Windows)
 osmosis.config('user_agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36');
 // Если запрос не выполнен, не продолжайте повторную попытку (по умолчанию это 3)
