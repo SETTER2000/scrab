@@ -6,25 +6,12 @@ const country = domain + '/en/registry/breeders/';
 // Сделайте пользовательский агент браузером (Google Chrome в Windows)
 osmosis.config('user_agent', 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0');
 // Если запрос не выполнен, не продолжайте повторную попытку (по умолчанию это 3)
-osmosis.config('tries', 2);
+osmosis.config('tries', 3);
 // Параллельные запросы (по умолчанию это 5) делают это 2, поэтому мы не забиваем сайт
 osmosis.config('concurrency', 2);
-osmosis.config('proxy', "172.30.1.253:9150");
-let list = [];
-osmosis
-    .get(country)
-    .find('#bodycontent')
-    .set('country')
 
-    .data(function(data) {
-       console.log(data);
-    })
-    .log(console.log)
-    .error(console.log);
-    // .debug(console.log);
-
-return;
-function getOwners(res) {
+// return;
+/*function getOwners(res) {
     return new Promise((resolve, reject) => {
         let list = [];
         osmosis
@@ -44,6 +31,31 @@ function getOwners(res) {
             })
             .data(data => list.push(data))
             .error(err => reject(err))
+            .done(() => resolve(list));
+    });
+}*/
+function getOwners(res) {
+    return new Promise((resolve, reject) => {
+        let list = [];
+        osmosis
+            .get(res)
+            .find('//*[@id="kennelmenu"]/li[1]/a')
+            .follow('@href')
+            .set('href')
+            //
+            .find('#ownerListing > li')
+            .set({
+                'nameDog': 'ul>li[1]>a>strong',
+                'nic': 'ul>li[2]>strong',
+                'urlDog': 'a@href',
+                'img': 'a > img@src',
+                'type': 'ul>li[3]',
+                'statistics': 'ul>li[4]>a',
+                'pedigree': 'ul>li[4]>a@href',
+            })
+            .delay(5000)
+            .data(item => list.push(item))
+            .error(err => reject(err + ' ' + res))
             .done(() => resolve(list));
     });
 }
@@ -136,7 +148,7 @@ function getCountry() {
                 'url': 'a@href',
                 'kennels': 'p'
             })
-            // .delay(5000)
+            .delay(5000)
             .then(async (context, data) => {
                 let v;
                 try {
