@@ -1,14 +1,29 @@
 const osmosis = require('osmosis');
 const fs = require('fs');
-const domain = 'www.chinesecrested.no';
+const domain = 'http://www.chinesecrested.no';
 const country = domain + '/en/registry/breeders/';
+
 // Сделайте пользовательский агент браузером (Google Chrome в Windows)
-osmosis.config('user_agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36');
+osmosis.config('user_agent', 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0');
 // Если запрос не выполнен, не продолжайте повторную попытку (по умолчанию это 3)
 osmosis.config('tries', 2);
 // Параллельные запросы (по умолчанию это 5) делают это 2, поэтому мы не забиваем сайт
 osmosis.config('concurrency', 2);
+osmosis.config('proxy', "172.30.1.253:9150");
+let list = [];
+osmosis
+    .get(country)
+    .find('#bodycontent')
+    .set('country')
 
+    .data(function(data) {
+       console.log(data);
+    })
+    .log(console.log)
+    .error(console.log);
+    // .debug(console.log);
+
+return;
 function getOwners(res) {
     return new Promise((resolve, reject) => {
         let list = [];
@@ -49,7 +64,8 @@ function getLitters(res) {
             })
             .data(data => list.push(data))
             .error(err => reject(err))
-            .done(() => resolve(list));
+            .done(() => resolve(list))
+        ;
     });
 }
 
@@ -68,7 +84,7 @@ function getKennels(res) {
                 'litters': 'p',
                 'owners': 'p',
             })
-            // .delay(5000)
+            // .delay(3000)
             .then(async (context, data) => {
                 let v;
                 try {
@@ -83,9 +99,11 @@ function getKennels(res) {
                     data.owners = await getOwners(domain + data.url);
                 } catch (e) {
                     if (e.indexOf("(find) no results for") >= 0) {
-                        v = await   console.log(`getOwners Не нашёл owner: ${'http://'+domain + data.url}`, e);
+                        v = await   console.log(`getOwners Не нашёл owner: ${domain + data.url}`, e);
                     } else if (e.indexOf('404 Not Found') >= 0) {
-                        v = await   console.log(`getOwners Страница не найдена:`, e);
+                        v = await   console.log(`getOwners Страница не найдена:`, e);}
+                        else if (e.indexOf('403 Forbidden') >= 0) {
+                        v = await   console.log(`getOwners 403 (Forbidden, доступ запрещен):`, e);
                     } else {
                         console.log(`getOwners Не смог подключиться к:`, e);
                         v = await   notConnect.push(e);
@@ -118,7 +136,7 @@ function getCountry() {
                 'url': 'a@href',
                 'kennels': 'p'
             })
-            .delay(5000)
+            // .delay(5000)
             .then(async (context, data) => {
                 let v;
                 try {
