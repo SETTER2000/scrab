@@ -33,7 +33,7 @@ function getOwners(res) {
     });
 }
 
-items.map(async (link) => {
+items2.map(async (link) => {
     try {
         res.push(await getOwners(link));
         fs.writeFile('data_test.json', JSON.stringify(res, null, 4), function (err) {

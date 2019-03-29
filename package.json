@@ -10,6 +10,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "osmosis": "^1.1.10"
+    "cheerio": "^1.0.0-rc.2",
+    "http-proxy": "^1.17.0",
+    "https-proxy-agent": "^2.2.1",
+    "isomorphic-fetch": "^2.2.1",
+    "needle": "^2.2.4",
+    "node-horseman": "^3.3.0",
+    "osmosis": "^1.1.10",
+    "phantomjs-prebuilt": "^2.1.16",
+    "tress": "^1.1.4"
   }
 }

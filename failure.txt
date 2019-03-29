@@ -1,0 +1,23 @@
+$ DEBUG=* node fetch.js
+  https-proxy-agent creating new HttpsProxyAgent instance: Url { protocol: 'http:', slashes: true, auth: 'username:password', host: 'localhost:9818', port: '9818', hostname: 'localhost', hash: null, search: null, query: null, pathname: '/', path: '/', href: 'http://username:password@localhost:9818/' } +0ms
+isomorphic-fetch: calling node-fetch
+node-fetch: sending request
+  https-proxy-agent onend +24ms
+  https-proxy-agent onclose had error false +1ms
+node-fetch: error { Error: socket hang up
+    at createHangUpError (_http_client.js:322:15)
+    at Socket.socketCloseListener (_http_client.js:363:25)
+    at Socket.emit (events.js:187:15)
+    at TCP._handle.close (net.js:606:12) code: 'ECONNRESET' }
+Fetch error { FetchError: request to http://localhost:8818 failed, reason: socket hang up
+    at ClientRequest.<anonymous> (/path/to/node_modules/node-fetch/index.js:136:11)
+    at ClientRequest.emit (events.js:182:13)
+    at Socket.socketCloseListener (_http_client.js:363:11)
+    at Socket.emit (events.js:187:15)
+    at TCP._handle.close (net.js:606:12)
+  name: 'FetchError',
+  message:
+   'request to http://localhost:8818 failed, reason: socket hang up',
+  type: 'system',
+  errno: 'ECONNRESET',
+  code: 'ECONNRESET' }

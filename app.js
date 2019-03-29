@@ -4,7 +4,7 @@ const domain = 'http://www.chinesecrested.no';
 const country = domain + '/en/registry/breeders/';
 
 // Сделайте пользовательский агент браузером (Google Chrome в Windows)
-osmosis.config('user_agent', 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0');
+osmosis.config('user_agent', 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36 OPR/58.0.3135.118 222');
 // Если запрос не выполнен, не продолжайте повторную попытку (по умолчанию это 3)
 osmosis.config('tries', 3);
 // Параллельные запросы (по умолчанию это 5) делают это 2, поэтому мы не забиваем сайт
