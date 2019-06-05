@@ -1,7 +1,13 @@
 const osmosis = require('osmosis');
+const url = require('url');
 const fs = require('fs');
-const domain = 'http://www.chinesecrested.no';
-const country = domain + '/en/registry/breeders/';
+// const domain = 'file:///D:/crested/www.chinesecrested.no/en/registry/breeders/default.htm';
+const urlRegistry = 'http://www.chinesecrested.no/en/registry/';
+const domain = 'http://www.chinesecrested.no/en/registry/breeders/';
+const urlOwner = 'http://www.chinesecrested.no/en/registry/owners/';
+
+let ken = '';
+let country = `${domain}${ken}default.htm`;
 
 // Сделайте пользовательский агент браузером (Google Chrome в Windows)
 osmosis.config('user_agent', 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36 OPR/58.0.3135.118 222');
@@ -35,6 +41,7 @@ osmosis.config('concurrency', 2);
     });
 }*/
 function getOwners(res) {
+    console.log('Функция getOwners. Сюда должны подключиться: ', res);
     return new Promise((resolve, reject) => {
         let list = [];
         osmosis
@@ -47,7 +54,7 @@ function getOwners(res) {
             .set({
                 'nameDog': 'ul>li[1]>a>strong',
                 'nic': 'ul>li[2]>strong',
-                'urlDog': 'a@href',
+                'C': 'a@href',
                 'img': 'a > img@src',
                 'type': 'ul>li[3]',
                 'statistics': 'ul>li[4]>a',
@@ -63,6 +70,7 @@ function getOwners(res) {
 function getLitters(res) {
     return new Promise((resolve, reject) => {
         let list = [];
+        console.log('Функция getLitters. Сюда должны подключиться: ', res);
         osmosis
         // Поиск на странице стран
             .get(res)
@@ -73,8 +81,11 @@ function getLitters(res) {
                 'dam': 'dl>dd[3]>a/text()',
                 'sireUrl': 'dl>dd[2]>a@href',
                 'damUrl': 'dl>dd[3]>a@href',
+            }).then(data => {
+            console.log('sireUrl', data);
             })
             .data(data => list.push(data))
+
             .error(err => reject(err))
             .done(() => resolve(list))
         ;
@@ -82,6 +93,7 @@ function getLitters(res) {
 }
 
 function getKennels(res) {
+    console.log('Функция getKennels. Сюда должны подключиться: ', res);
     return new Promise((resolve, reject) => {
         let releasesMap = [];
         let notConnect = [];
@@ -100,7 +112,10 @@ function getKennels(res) {
             .then(async (context, data) => {
                 let v;
                 try {
-                    data.litters = await getLitters(domain + data.url);
+                    let arrUrl = res.split('/').slice(-2); //arrUrl::  [ 'Argentina', 'default.htm' ]
+                    // console.log('arrUrl:: ' , arrUrl);
+                    let url = `${domain}${arrUrl[0]}/${data.url}`;
+                    data.litters = await getLitters(url);
                 } catch (e) {
                     v = await  console.log('getLitters Не смог подключиться:', e); // Ошибка!
                 }
@@ -108,10 +123,13 @@ function getKennels(res) {
             .then(async (context, data) => {
                 let v;
                 try {
-                    data.owners = await getOwners(domain + data.url);
+                    let arrUrl = res.split('/').slice(-2); //arrUrl::  [ 'Argentina', 'default.htm' ]
+                    // console.log('arrUrl:: ' , arrUrl);
+                    let url =  `${urlOwner}${arrUrl[0]}/${data.url}`;
+                    data.owners = await getOwners(url);
                 } catch (e) {
                     if (e.indexOf("(find) no results for") >= 0) {
-                        v = await   console.log(`getOwners Не нашёл owner: ${domain + data.url}`, e);
+                        v = await   console.log(`getOwners Не нашёл owner: ${url}`, e);
                     } else if (e.indexOf('404 Not Found') >= 0) {
                         v = await   console.log(`getOwners Страница не найдена:`, e);}
                         else if (e.indexOf('403 Forbidden') >= 0) {
@@ -119,6 +137,7 @@ function getKennels(res) {
                     } else {
                         console.log(`getOwners Не смог подключиться к:`, e);
                         v = await   notConnect.push(e);
+                        console.log('EEEE: ', e);
                     }
                 }
             })
@@ -136,6 +155,7 @@ function getKennels(res) {
 }
 
 function getCountry() {
+    console.log('Функция getCountry. Сюда должны подключиться: ', country);
     return new Promise((resolve, reject) => {
         let releasesMap = [];
         osmosis
@@ -152,9 +172,10 @@ function getCountry() {
             .then(async (context, data) => {
                 let v;
                 try {
-                    data.kennels = await getKennels(domain + data.url);
+                    let url = `${domain}${data.url}`;
+                    data.kennels = await getKennels(url);
                 } catch (e) {
-                    v = await  console.log('В функции getKennels произошла ошибка: ', e); // Ошибка!
+                    v = await  console.log('В функции getKennels ++ произошла ошибка: ', e); // Ошибка!
                 }
             })
             .then(async (context, data) => {
