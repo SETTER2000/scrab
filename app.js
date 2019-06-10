@@ -47,18 +47,21 @@ function getOwners(res) {
         osmosis
             .get(res)
             .find('//*[@id="kennelmenu"]/li[1]/a')
-            .follow('@href')
+            // .follow('@href')
             .set('href')
             //
             .find('#ownerListing > li')
             .set({
                 'nameDog': 'ul>li[1]>a>strong',
-                'nic': 'ul>li[2]>strong',
-                'C': 'a@href',
+                'nic': 'ul>li>strong',
+                'main': 'a@href', // Ссылка на главную страницу собаки
                 'img': 'a > img@src',
-                'type': 'ul>li[3]',
+                'type': 'ul>li/text()',
                 'statistics': 'ul>li[4]>a',
                 'pedigree': 'ul>li[4]>a@href',
+            })
+            .then(async (context, data) => {
+                console.log(data);
             })
             .delay(5000)
             .data(item => list.push(item))
@@ -82,7 +85,7 @@ function getLitters(res) {
                 'sireUrl': 'dl>dd[2]>a@href',
                 'damUrl': 'dl>dd[3]>a@href',
             }).then(data => {
-            console.log('sireUrl', data);
+            // console.log('sireUrl', data);
             })
             .data(data => list.push(data))
 
@@ -107,6 +110,21 @@ function getKennels(res) {
                 'url': 'a@href',
                 'litters': 'p',
                 'owners': 'p',
+            })
+            // .do((context, data)=>{
+            //     console.log(data);
+            //
+            // })
+            // .follow('@href')
+            // .find('h1')
+            // .set({'breeder':'span[2]'})
+            .then(async (context, data) => {
+                console.log(data);
+                // context.find('a[href]')
+                //     .set({
+                //         'h1': 'h1/text()',
+                //         'breeder':'h1>span[2]'
+                //     })
             })
             // .delay(3000)
             .then(async (context, data) => {
@@ -187,14 +205,18 @@ function getCountry() {
                 }
             })
             .error(err => reject(err))
-            .done(() => resolve(releasesMap));
+            .done(() => resolve(releasesMap))
+            .log(console.log)
+            .error(console.log)
+            .debug(console.log);
     });
 }
 
 getCountry().then(function (res) {
     fs.writeFile('data.json', JSON.stringify(res, null, 4), function (err) {
         if (err) console.error('Возникла ошибка при записи в файл: ', err);
-        else console.log(`Data Saved to data.json file.`);
+        else return console.log(`Data Saved to data.json file.`);
+
     });
     // console.log('Вывод в функции getCountry:', res);
 
