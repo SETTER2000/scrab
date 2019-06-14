@@ -15,6 +15,9 @@ osmosis.config('user_agent', 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebK
 osmosis.config('tries', 3);
 // Параллельные запросы (по умолчанию это 5) делают это 2, поэтому мы не забиваем сайт
 osmosis.config('concurrency', 2);
+osmosis.config('follow_set_cookies', true);
+osmosis.config('follow_set_referer', true);
+osmosis.config('follow', 10);
 
 // return;
 /*function getOwners(res) {
